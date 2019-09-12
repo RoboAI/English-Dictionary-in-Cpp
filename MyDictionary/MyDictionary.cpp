@@ -104,59 +104,6 @@ void doDictionaryFullFile()
 
 }
 
-struct test_struct {
-	std::string name;
-};
-
-std::string hello1(std::string& func_str){
-	std::cout << "func_str &= " << &func_str << std::endl;
-	return func_str;
-}
-
-test_struct testing(test_struct t) {
-	t.name = "none";
-	return { std::string("sdf") };
-}
-
-struct RetVal {
-	int inumber;
-	std::string str;
-	float fnumber;
-};
-
-RetVal create_a_struct() {
-	return { 20, std::string("baz"), 1.2f };
-}
-
-typedef void(*hoo)(int);
-
-void foo(hoo h) {
-	h(56);
-}
-
-void aaa(int i) {
-	std::cout << "aaa: "  << i << std::endl;
-}
-
-void bbb(int i) {
-	std::cout << "bbb: " << i << std::endl;
-}
-
-void ccc(int i) {
-	std::cout << "ccc: " << i << std::endl;
-}
-
-void ddd(int i) {
-	std::cout << "ddd: " << i << std::endl;
-}
-
-char msg[][12] = {	"hello there",
-					"hey world" };
-
-void getdef(char** pmsg, int which_msg) {
-	*pmsg = msg[which_msg];
-}
-
 void doEmbedded() {
 	CEmbeddedDictionary em;
 	em.open(std::string("dictionary/29765-8.txt"), std::string("dictionary/FullWordList.txt"));
