@@ -3,8 +3,6 @@ An English Dictionary using definitions from The Project Gutenberg EBook of Webs
 
 https://www.gutenberg.org/ebooks/673
 
-## Embedded and Windows
-
 The project is currently a Console app for windows.
 
 I have written a function to convert the dictionary definitions into an 'indexing file'.
@@ -12,12 +10,20 @@ I have written a function to convert the dictionary definitions into an 'indexin
 FullWordList.txt has these indexes:
 [the first number is the starting pointer for the defintions file, and the second number the ending pointer]
 
-DEFUSE:6582911;6583013
-DEFY:6583013;6583950
-DEFY:6583950;6584007
-DEGAGE:6584007;6584196
-DEGARNISH:6584196;6584636
-DEGARNISHMENT:6584636;6584755
+DEFUSE:6582911;6583013 
+
+DEFY:6583013;6583950 
+
+DEFY:6583950;6584007 
+
+DEGAGE:6584007;6584196 
+
+DEGARNISH:6584196;6584636 
+
+DEGARNISHMENT:6584636;6584755 
+
+
+## Embedded and Windows
 
 This code was designed to also run on an embedded environment with minimal code. Some well-known functions have been re-written (or pasted) to have minimal compile/code for the embedded enviroment.
 
