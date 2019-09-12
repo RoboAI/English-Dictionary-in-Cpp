@@ -43,8 +43,6 @@ public:
 	virtual void getline(char* pbuffer, sys_int nsize) = 0;
 	virtual void read(char* pbuffer, sys_int nsize) = 0;
 
-//	virtual void findWord(char* word_to_find, SearchReturn& search_found) = 0;
-
 public:
 	T m_dictionary_handle;
 	FileLoc	m_file_location;
