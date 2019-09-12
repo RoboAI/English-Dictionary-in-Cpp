@@ -182,57 +182,5 @@ void doEmbedded() {
 
 int main()
 {
-	/*
-	test_struct a_test;
-	a_test.name = "test123";
-	std::cout << "name is: " << a_test.name << std::endl;
-	std::cout << "testing() returned : " << testing(a_test).name << std::endl;
-	std::cout << "after is: " << a_test.name << std::endl;
-
-	RetVal r = create_a_struct();
-	std::cout << r.fnumber << " : " << r.inumber << " : " << r.str << std::endl;
-	*/
-
-	//doDictionaryFullFile();
-
-	doEmbedded();
-
-	SearchReturn search;
-	char data[] = "hello:1234;5678";
-	CDictionaryWords words;
-
-	std::string ab;
-	ab = "because\n";
-	std::cout << ab;
-
-	char m[] = "aaabugtg,;.[sdfsdfg";
-
-	hoo funcs[4];
-	funcs[0] = aaa;
-	funcs[1] = bbb;
-	funcs[2] = ccc;
-	funcs[3] = ddd;
-
-	for (int i = 0; i < 4; i++) {
-		funcs[i](i);
-
-	}
-
-	/*
-	return (_Reallocate_for(_Count, [](_Elem * const _New_ptr, const size_type _Count, const _Elem * const _Ptr) {
-		_Traits::copy(_New_ptr, _Ptr, _Count);
-		_Traits::assign(_New_ptr[_Count], _Elem());
-	}, _Ptr));
-	*/
-
-	//basic_string& _Reallocate_for(const size_type _New_size, _Fty _Fn, _ArgTys... _Args)
-
-	char* msg;
-	getdef(&msg, 0);
-	std::cout << msg;
-	getdef(&msg, 1);
-	std::cout << msg;
-
-	std::string q;
-	std::cin >> q;
+	doDictionaryFullFile();
 }
