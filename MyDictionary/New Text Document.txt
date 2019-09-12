@@ -1,0 +1,288 @@
+#include "stdafx.h"
+#include "WordsFileGenerator.h"
+
+std::string& convertToUpper(std::string& searchWord) 
+{
+	std::transform(searchWord.begin(), searchWord.end(), searchWord.begin(), ::toupper);
+	return searchWord;
+}
+
+bool isLetter(int c)
+{
+	if (((c >= (int)'A') && (c <= (int)'Z')) ||
+		((c >= (int)'a') && (c <= (int)'z'))) {
+		return true;
+	}
+	else
+		return false;
+}
+
+bool verifySearchWord(std::string& searchWord)
+{
+	if (searchWord.empty())
+		return false;
+
+	int length = searchWord.length();
+
+	for (int i = 0; i < length; i++)
+	{
+		int c = static_cast<int>(searchWord[i]);
+
+		if (!isLetter(c)) {
+			searchWord.clear();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//generates and returns file location for individual files (e.g. "dictionary/defs/A.txt"
+std::string& getReadFileName(std::string& fileName, char c)
+{
+	if (c == NULL) {
+		fileName = "";
+		return fileName;
+	}
+
+	fileName = DIR_DICTIONARY;
+	fileName += DIR_DEFINITIONS;
+	fileName += c;
+	fileName += FILE_EXT;
+	return fileName;
+}
+
+//generates and returns file location for individual files (e.g. "dictionary/words/wordA.txt"
+std::string& getWriteFileName(std::string& fileName, char c)
+{
+	if (c == NULL) {
+		fileName = "";
+		return fileName;
+	}
+
+	fileName = DIR_DICTIONARY;
+	fileName += DIR_WORDS;
+	fileName += WORDS_PREFIX;;
+	fileName += c;
+	fileName += FILE_EXT;
+	return fileName;
+}
+
+//generates and returns the dictionary's file location
+std::string& getFullDictionaryDirRead(std::string& fileName)
+{
+	fileName = DIR_DICTIONARY;
+	fileName += FULL_DICTIONARY_FILENAME;
+	return fileName;
+}
+
+//generates and returns the directory to which the full_words_list file will be created
+std::string& getFullDictionaryDirWrite(std::string& fileName)
+{
+	fileName = DIR_DICTIONARY;
+	fileName += FULL_WORDS_LIST_FILENAME;
+	return fileName;
+}
+
+int findTextInStream(std::ifstream& file, std::string& textToFind)
+{
+	if (!file.is_open() || !file.good())
+		return ERROR_BASIC;
+
+	if (textToFind.empty())
+		return ERROR_BASIC;
+
+	long i_prev_position = 0;
+	bool bFound = false;
+	std::string stringFromFile = "";
+
+	while (!file.eof())
+	{
+		i_prev_position = file.tellg();//store current posistion so that if found, word's location isnt lost
+		std::getline(file, stringFromFile);//get current line
+		if (!stringFromFile.compare(textToFind))//if line == textToFind
+		{
+			bFound = true;//flag that we have found it
+			break;
+		}
+	}
+
+	if (bFound)
+		return i_prev_position;
+	else
+		return ERROR_BASIC;
+}
+
+bool isValidWord(std::string& line)
+{
+	if (line.empty())
+		return false;
+
+	int length = line.length();
+	bool bValidWord = true;
+
+	for (int i = 0; i < length; i++) {
+		if (!(((line[i] >= (int)'A') && (line[i] <= (int)'Z')) ||
+			(line[i] == (int)'-') ||
+			(line[i] == (int)' ') ||
+			(line[i] == (int)';'))) {
+			bValidWord = false;
+			break;
+		}
+	}
+
+	return  bValidWord;
+}
+
+int findNextValidWord(std::ifstream& file, std::string& stringFound, long* pStringLoc)
+{
+	int error_code = ERROR_NONE;
+	stringFound = "";
+
+	while (!file.eof()) {
+		*pStringLoc = file.tellg();
+		std::getline(file, stringFound);
+
+		if (!stringFound.compare(END_OF_DICTIONARY)) {
+			error_code = ERROR_DICTIONARY_END;
+			break;
+		}
+		else if (isValidWord(stringFound)) {
+			break;
+		}
+	}
+
+	return error_code;
+}
+
+template<class T>
+bool verifyFileOpen(T& file)
+{
+	if (!(file.is_open() || file.good()))
+		return false;
+	else
+		return true;
+}
+
+bool generateWordsSingleFile(char wordLetter)
+{
+	if (!isLetter(wordLetter))
+		return false;
+
+	std::string sFileNameRead = "";
+	std::string sFileNameWrite = "";
+
+	sFileNameRead = getReadFileName(sFileNameRead, wordLetter);
+	sFileNameWrite = getWriteFileName(sFileNameWrite, wordLetter);
+
+	return generateWordsSingleFile(sFileNameRead, sFileNameWrite);
+}
+
+bool generateWordsSingleFile(std::string& sFileNameRead, std::string& sFileNameWrite)
+{
+	if (sFileNameRead.empty() || sFileNameWrite.empty())
+		return false;
+
+	std::ifstream in_file;
+	std::ofstream out_file;
+
+	in_file.open(sFileNameRead, std::ifstream::in);
+	out_file.open(sFileNameWrite, std::ofstream::out);
+
+	generateWordsSingleFile(in_file, out_file);
+
+	out_file.close();
+	in_file.close();
+
+	return true;
+}
+
+void generateWordsSingleFile(std::ifstream& in_file, std::ofstream& out_file) 
+{
+	if (!verifyFileOpen<std::ifstream>(in_file))
+		return;
+
+	if (!verifyFileOpen<std::ofstream>(out_file))
+		return;
+
+	std::string sTextToFind = START_OF_DICTIONARY;
+	std::string sDataRead = "";
+	long pos_of_found_word = ERROR_NONE;//this is critical, must start with < 0
+	long pos_of_prev_word = ERROR_NONE;
+	int error_code = ERROR_NONE;
+
+	//looking for [START]
+	findTextInStream(in_file, sTextToFind);
+
+	while (!in_file.eof()) {
+		error_code = findNextValidWord(in_file, sDataRead, &pos_of_found_word);
+
+		if (error_code == ERROR_NONE) {
+			if (pos_of_prev_word >= 0 && pos_of_found_word > pos_of_prev_word) {
+				out_file << pos_of_prev_word << ADDRESS_SEPARATOR << pos_of_found_word << "\n";
+				//std::cout << pos_of_prev_word << ADDRESS_SEPARATOR << pos_of_found_word << "\n";
+			}
+
+			if (pos_of_found_word >= 0) {
+				out_file << sDataRead << WORD_SEPARATOR;
+				//std::cout << sDataRead << WORD_SEPARATOR;
+			}
+		}
+		else if (error_code == ERROR_DICTIONARY_END) {//insert data one last time
+			out_file << pos_of_prev_word << ADDRESS_SEPARATOR << pos_of_found_word << "\n";
+			//std::cout << pos_of_prev_word << ADDRESS_SEPARATOR << pos_of_found_word << "\n";
+			break;
+		}
+		else if (error_code == ERROR_BASIC) {
+			std::cout << "------------ERROR ------------ " << std::endl;
+			std::cin >> sDataRead;
+			break;
+		}
+
+		pos_of_prev_word = pos_of_found_word;
+	}
+}
+
+void generateAllWordFiles()
+{
+	std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	//std::string alphabet = ".";
+	int length = alphabet.length();
+	std::string temp = "";
+
+	std::cout << "generating files.." << std::endl;
+
+	for (int i = 0; i < length; i++) {
+		if (generateWordsSingleFile(alphabet[i]))
+			std::cout << "finished " << alphabet[i] << std::endl;
+		else
+			std::cout << "error occurred for file " << alphabet[i] << std::endl;
+	}
+
+	std::cout << "complete " << "\n" << std::endl;
+	std::cout << "enter any key to exit.." << std::endl;
+	std::cin >> temp;
+}
+
+bool generateEntireWordsFile()
+{
+	bool error_code = ERROR_NONE;
+
+	std::string sFileNameRead = "";
+	std::string sFileNameWrite = "";
+	
+	sFileNameRead = getFullDictionaryDirRead(sFileNameRead);
+	sFileNameWrite = getFullDictionaryDirWrite(sFileNameWrite);
+
+	std::cout << "generating one huge file.." << std::endl;
+
+	error_code = generateEntireWordsFile(sFileNameRead, sFileNameWrite);
+
+	if (!error_code)
+		std::cout << "an error has occurred" << std::endl;
+}
+
+bool generateEntireWordsFile(std::string& sFileNameRead, std::string& sFileNameWrite)
+{
+	return generateWordsSingleFile(sFileNameRead, sFileNameWrite);
+}
